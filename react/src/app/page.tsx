@@ -108,6 +108,12 @@ export default function Home() {
           <Link href="/iframe">
             <li>iframe test</li>
           </Link>
+          <Link href="/dashboard-layout-system">
+            <li>layout system</li>
+          </Link>
+          <Link href="/final-system">
+            <li>final system</li>
+          </Link>
         </ul>
       </div>
       {!initialStructure && <Artifact />}
