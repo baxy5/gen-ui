@@ -24,7 +24,7 @@ class R2ObjectStorage:
     def __init__(self, public_url: str) -> None:
         self.public_url = public_url
 
-    def create_separate_files(self, files):
+    def create_separate_files(self, files, is_final):
         """Build separate codes."""
 
         html_content = f"""
@@ -35,11 +35,10 @@ class R2ObjectStorage:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>{files["page_title"]}</title>
             <link rel="stylesheet" href="./styles.css">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         </head>
         <body>
-            <div class="component-container">
-                {files["html"]}
-            </div>
+            {files["html"]}
             
             <script src="./app.js"></script>
             <script>
@@ -54,13 +53,34 @@ class R2ObjectStorage:
         </html>
         """
 
-        css_content = files["css"]
+        # Load the styles.css from public-mock-data folder
+        try:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            styles_path = os.path.join(
+                current_dir, "..", "public-mock-data", "styles.css"
+            )
+            with open(styles_path, "r") as f:
+                base_css = f.read()
+        except FileNotFoundError:
+            raise RuntimeError("Failed to load styles.css from public-mock-data folder")
+
+        # Combine base CSS with component-specific CSS
+        if is_final:
+            css_content = f"""
+                {base_css}
+                
+                {files["css"]}
+            """
+        else:
+            css_content = f"""
+            {files["css"]}
+            """
 
         js_content = files["js"]
 
         return {"html": html_content, "css": css_content, "javascript": js_content}
 
-    async def upload_to_storage(self, files) -> str:
+    async def upload_to_storage(self, files, is_final) -> str:
         """Upload files to Cloudflare R2 Object Storage and return the hosted URL."""
 
         # Cloudflare R2 Config
@@ -84,10 +104,15 @@ class R2ObjectStorage:
 
         # Create unique folder id for this app
         current_time = datetime.now().strftime("%Y%m%d%H%M")
-        folder_key = f"artifact-{current_time}-{str(uuid.uuid4()).replace('-', '')[:4]}"
+        if is_final:
+            folder_key = f"artifact-{current_time}-{str(uuid.uuid4()).replace('-', '')[:4]}-final"
+        else:
+            folder_key = (
+                f"artifact-{current_time}-{str(uuid.uuid4()).replace('-', '')[:4]}"
+            )
 
         # Seperate files
-        separated_files = self.create_separate_files(files)
+        separated_files = self.create_separate_files(files, is_final)
 
         files_to_upload = [
             ("index.html", separated_files["html"], "text/html"),

@@ -2,7 +2,7 @@ import json
 import os
 from typing import Annotated
 from fastapi import Depends, HTTPException
-from agents.dashboard_agent import DashboardAgent
+from agents.dashboard_agent import get_dashboard_agent
 from core.store_to_r2 import R2ObjectStorage
 from schemas.dashboard_schema import (
     AgentState,
@@ -18,7 +18,6 @@ class DashboardFinalService:
 
     def __init__(
         self,
-        agent: Annotated[DashboardAgent, Depends()],
         r2: Annotated[
             R2ObjectStorage,
             Depends(
@@ -28,7 +27,7 @@ class DashboardFinalService:
             ),
         ],
     ):
-        self.agent = agent
+        self.agent = get_dashboard_agent()
         self.r2 = r2
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -70,35 +69,19 @@ class DashboardFinalService:
         # Get previous state
         selected_layout: Layout = None
         try:
-            checkpoints = []
-            for checkpoint in self.agent.graph.checkpointer.list(config):
-                checkpoints.append(checkpoint)
+            snapshot = self.agent.graph.get_state(config)
+            layouts = snapshot.values["layouts"]
 
-            if checkpoints:
-                latest_checkpoint = max(
-                    checkpoints, key=lambda x: x.metadata.get("step", 0)
-                )
-                previous_state = latest_checkpoint.checkpoint["channel_values"]
-                layouts = previous_state.get("layouts", [])
-
-                # Find the layout with matching layout_id
-                for layout in layouts:
-                    if layout.layout_id == request.layout_id:
-                        selected_layout = layout
-                        break
-
-                if not selected_layout:
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"Final service -> Layout with id '{request.layout_id}' not found in conversation history",
-                    )
+            for layout in layouts:
+                if layout.layout_id == request.layout_id:
+                    selected_layout = layout
+                    break
         except Exception as e:
             raise HTTPException(
                 status_code=500,
                 detail=f"Final service -> failed to retrieve conv. history: {e}",
             )
 
-        # TODO: if the results are not great, then append "query" and "data"
         initial_state: AgentState = {
             "phase": request.phase,
             "selected_layout": selected_layout,
@@ -118,7 +101,7 @@ class DashboardFinalService:
                 "js": final_result.js,
             }
 
-            hosted_url = await self.r2.upload_to_storage(files_obj)
+            hosted_url = await self.r2.upload_to_storage(files_obj, is_final=True)
             response = FinalResponseSchema(url=hosted_url)
         except Exception as e:
             raise HTTPException(
