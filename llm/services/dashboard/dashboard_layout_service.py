@@ -2,7 +2,7 @@ import json
 import os
 from typing import Annotated, List
 from fastapi import Depends, HTTPException
-from agents.dashboard_agent import DashboardAgent
+from agents.dashboard_agent import get_dashboard_agent
 from core.store_to_r2 import R2ObjectStorage
 from schemas.dashboard_schema import (
     AgentState,
@@ -19,7 +19,6 @@ class DashboardLayoutService:
 
     def __init__(
         self,
-        agent: Annotated[DashboardAgent, Depends()],
         r2: Annotated[
             R2ObjectStorage,
             Depends(
@@ -29,7 +28,7 @@ class DashboardLayoutService:
             ),
         ],
     ):
-        self.agent = agent
+        self.agent = get_dashboard_agent()
         self.r2 = r2
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -66,7 +65,7 @@ class DashboardLayoutService:
                     "css": layout.css,
                     "js": layout.js,
                 }
-                hosted_url = await self.r2.upload_to_storage(files_obj)
+                hosted_url = await self.r2.upload_to_storage(files_obj, is_final=False)
                 layout_response = LayoutsResponse(
                     url=hosted_url, layout_id=layout.layout_id
                 )

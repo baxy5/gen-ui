@@ -5,7 +5,10 @@ from pydantic import BaseModel, Field
 class LayoutRequestSchema(BaseModel):
     """Schema for API "layout" phase request."""
 
-    query: str = Field(description="User query.")
+    query: str = Field(
+        default="Create a dashboard from all the provided data.",
+        description="User query.",
+    )
     data: str = Field(description="Provided dataset by the user.")
     phase: str = Field(
         default="layout",
