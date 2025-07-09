@@ -73,10 +73,6 @@ class DashboardFinalService:
             layouts = snapshot.values["layouts"]
 
             for layout in layouts:
-                print(f"Layout: {layout}")
-                print(f"Layout id: {layout.layout_id}")
-                print(f"Request layout_id: {request.layout_id}")
-                print(f"Equal? : {layout.layout_id == request.layout_id}")
                 if layout.layout_id == request.layout_id:
                     selected_layout = layout
                     break
