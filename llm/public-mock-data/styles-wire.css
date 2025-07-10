@@ -200,15 +200,9 @@ pre code {
   font-weight: 500;
   line-height: 1.5;
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-standard);
   border: none;
   text-decoration: none;
   position: relative;
-}
-
-.btn:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
 }
 
 .btn--primary {
@@ -216,35 +210,15 @@ pre code {
   color: var(--color-btn-primary-text);
 }
 
-.btn--primary:hover {
-  background: var(--color-primary-hover);
-}
-
-.btn--primary:active {
-  background: var(--color-primary-active);
-}
-
 .btn--secondary {
   background: var(--color-secondary);
   color: var(--color-text);
-}
-
-.btn--secondary:hover {
-  background: var(--color-secondary-hover);
-}
-
-.btn--secondary:active {
-  background: var(--color-secondary-active);
 }
 
 .btn--outline {
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-text);
-}
-
-.btn--outline:hover {
-  background: var(--color-secondary);
 }
 
 .btn--sm {
@@ -279,8 +253,6 @@ pre code {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-base);
-  transition: border-color var(--duration-fast) var(--ease-standard),
-    box-shadow var(--duration-fast) var(--ease-standard);
 }
 
 textarea.form-control {
@@ -323,11 +295,6 @@ select.form-control {
   border: 1px solid var(--color-card-border);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: box-shadow var(--duration-normal) var(--ease-standard);
-}
-
-.card:hover {
-  box-shadow: var(--shadow-md);
 }
 
 .card__body {
@@ -1077,19 +1044,10 @@ select.form-control {
   pointer-events: none;
 }
 
-.wire-btn:hover {
-  background-color: var(--color-secondary-hover);
-  border-color: var(--color-text-secondary);
-}
-
 .wire-btn-primary {
   background-color: var(--color-primary);
   color: var(--color-btn-primary-text);
   border-color: var(--color-text);
-}
-
-.wire-btn-primary:hover {
-  background-color: var(--color-primary-hover);
 }
 
 /* Wireframe Input */
@@ -1102,12 +1060,6 @@ select.form-control {
   width: 100%;
   position: relative;
   color: var(--color-text);
-}
-
-.wire-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: var(--focus-ring);
 }
 
 /* Wireframe Navigation */
@@ -1396,15 +1348,6 @@ select.form-control {
   margin: var(--space-6) 0;
 }
 
-/* Interactive hover states */
-.wire-hover:hover {
-  background-color: var(--color-secondary);
-  border-color: var(--color-text-secondary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--duration-fast) var(--ease-standard);
-}
-
 /* Utility classes from styles.css */
 .flex {
   display: flex;
@@ -1459,7 +1402,6 @@ select.form-control {
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   padding: var(--space-4) 0;
-  box-shadow: var(--shadow-sm);
 }
 
 .logo-section {
@@ -1505,13 +1447,6 @@ select.form-control {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
   text-align: center;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--duration-fast) var(--ease-standard);
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .stat-value {
@@ -1557,7 +1492,6 @@ select.form-control {
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
-  box-shadow: var(--shadow-sm);
 }
 
 .filter-section h3 {
@@ -1571,7 +1505,6 @@ select.form-control {
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
-  box-shadow: var(--shadow-sm);
 }
 
 .analytics-section h3 {
@@ -1609,7 +1542,6 @@ select.form-control {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
-  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
@@ -1655,13 +1587,6 @@ select.form-control {
   border-radius: var(--radius-base);
   padding: var(--space-4);
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-standard);
-}
-
-.company-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
 }
 
 .company-header {
@@ -1781,7 +1706,6 @@ select.form-control {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: var(--shadow-lg);
   position: relative;
 }
 
@@ -1817,11 +1741,6 @@ select.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.modal-close:hover {
-  background-color: var(--color-secondary);
-  color: var(--color-text);
 }
 
 .modal-body {
@@ -1918,13 +1837,6 @@ select.form-control {
   background: var(--color-surface);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--duration-normal) var(--ease-standard);
-}
-
-.enhanced-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
 }
 
 .data-insight-card {
@@ -1934,29 +1846,15 @@ select.form-control {
   padding: var(--space-6);
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--duration-normal) var(--ease-standard);
-}
-
-.data-insight-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-md);
 }
 
 .metric-card {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-card-border);
   position: relative;
   overflow: hidden;
-  transition: all var(--duration-normal) var(--ease-standard);
-}
-
-.metric-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .metric-value-large {
@@ -2077,7 +1975,6 @@ select.form-control {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
 }
 
 .data-table th,
@@ -2094,10 +1991,6 @@ select.form-control {
   font-size: var(--font-size-sm);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.data-table tr:hover {
-  background: var(--color-secondary);
 }
 
 .data-table tr:last-child td {
@@ -2153,7 +2046,6 @@ select.form-control {
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   border: 1px solid var(--color-card-border);
-  box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-6);
 }
 
@@ -2184,10 +2076,6 @@ select.form-control {
   color: var(--color-text);
 }
 
-.time-range-btn:hover {
-  background: var(--color-secondary);
-}
-
 .time-range-btn.active {
   background: var(--color-primary);
   color: var(--color-btn-primary-text);
@@ -2206,8 +2094,6 @@ select.form-control {
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   border: 1px solid var(--color-card-border);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--duration-normal) var(--ease-standard);
   position: relative;
   overflow: hidden;
 }
@@ -2226,11 +2112,6 @@ select.form-control {
 
 .kpi-card:hover::before {
   transform: scaleX(1);
-}
-
-.kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .kpi-header {
@@ -2306,7 +2187,6 @@ select.form-control {
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   border: 1px solid var(--color-card-border);
-  box-shadow: var(--shadow-sm);
   position: sticky;
   top: var(--space-6);
 }
@@ -2350,11 +2230,6 @@ select.form-control {
   cursor: pointer;
   padding: var(--space-1);
   border-radius: var(--radius-sm);
-  transition: background-color var(--duration-fast) var(--ease-standard);
-}
-
-.filter-checkbox:hover {
-  background: var(--color-secondary);
 }
 
 .filter-checkbox input[type="checkbox"] {
@@ -2408,10 +2283,6 @@ select.form-control {
 .interactive-element {
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-standard);
-}
-
-.interactive-element:hover {
-  transform: scale(1.02);
 }
 
 .interactive-element:active {
@@ -2472,10 +2343,8 @@ select.form-control {
   background: var(--color-surface);
   border-radius: var(--radius-base);
   padding: var(--space-4);
-  box-shadow: var(--shadow-lg);
   border-left: 4px solid var(--color-primary);
   z-index: 1000;
-  animation: slideInRight 0.3s ease-out;
 }
 
 @keyframes slideInRight {

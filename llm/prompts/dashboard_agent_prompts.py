@@ -172,6 +172,7 @@ generate_final_system_prompt = """
                     - **MANDATORY**: Only enhance styling and add interactivity, never change structure
                     - **MANDATORY**: For each layout use the "container" class on the main parent element which contains all the other components.
                     - **MANDATORY**: Pay attention to use padding or gap with 8px between every individual components.
+                    - **MANDATORY**: The body's background color must be the same as the components background color.
 
                     ## FINALIZATION METHODOLOGY:
 

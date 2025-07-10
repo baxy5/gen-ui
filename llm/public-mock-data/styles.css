@@ -1139,26 +1139,6 @@ select.form-control {
   color: var(--color-text-secondary);
 }
 
-/* Enhanced Visual Design Improvements */
-
-/* Enhanced gradient backgrounds and glassmorphism effects */
-.enhanced-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-surface) 0%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: all var(--duration-normal) var(--ease-standard);
-}
-
-.enhanced-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
-
 /* Enhanced Data Visualization Cards */
 .data-insight-card {
   background: linear-gradient(
