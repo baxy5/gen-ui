@@ -65,16 +65,11 @@ class R2ObjectStorage:
             raise RuntimeError("Failed to load styles.css from public-mock-data folder")
 
         # Combine base CSS with component-specific CSS
-        if is_final:
-            css_content = f"""
-                {base_css}
+        css_content = f"""
+            {base_css}
                 
-                {files["css"]}
-            """
-        else:
-            css_content = f"""
             {files["css"]}
-            """
+         """
 
         js_content = files["js"]
 

@@ -28,17 +28,12 @@ class DashboardAgent:
             messages = [
                 SystemMessage(generate_layout_system_prompt),
                 HumanMessage(
-                    f"""Apply DATA-DRIVEN INFORMATION ARCHITECTURE to create 3 comprehensive dashboard layouts:
+                    f"""
+                    Create three comprehensive dashboard layouts from the provided informations.
 
                     **USER REQUEST:** {state['query']}
-                    **COMPREHENSIVE DATASET:** {state['data']}
-
-                    **ANALYSIS REQUIREMENTS:**
-                    1. Extract and utilize EVERY piece of data provided
-                    2. Create information hierarchies based on business impact
-                    3. Apply systematic component selection based on data characteristics
-                    4. Design layouts that facilitate data-driven decision making
-                    5. Use CSS classes from the design system for consistent styling
+                    **DATASET:** {state['data']}
+                    **DESIGN SYSTEM:** {state['design_system']}
 
                     **OUTPUT REQUIREMENTS:**
                     - 3 distinct layout approaches (layout-1, layout-2, layout-3) with different component hierarchies
@@ -47,7 +42,9 @@ class DashboardAgent:
                     - Proper CSS Grid/Flexbox organization using design system classes
                     - Responsive design with centered alignment
                     - Professional styling using design system classes (cards, buttons, text, spacing, colors)
-                    - UI component library patterns for consistent visual design
+
+                    **IMPORTANT:**
+                    - Create 3 layout.
 
                     Focus on creating layouts that help users understand and analyze the complete dataset, not just highlights. Use design system classes for all styling to ensure consistency."""
                 ),

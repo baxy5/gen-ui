@@ -41,6 +41,17 @@ class DashboardLayoutService:
             raise RuntimeError(
                 f"Layout service -> Failed to load or parse technova_dummy_data.json: {e}"
             )
+        try:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            file_path = os.path.join(
+                current_dir, "..", "..", "public-mock-data", "styles.css"
+            )
+            with open(file_path, "r") as f:
+                self.css_descriptor = f.read()
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            raise RuntimeError(
+                f"Final service -> Failed to load or parse styles.css: {e}"
+            )
 
     async def generate_layouts(
         self, request: LayoutRequestSchema
@@ -50,6 +61,7 @@ class DashboardLayoutService:
         initial_state: AgentState = {
             "query": request.query,
             "data": self.data,
+            "design_system": self.css_descriptor,
             "phase": request.phase,  # "layout"
         }
 
