@@ -44,7 +44,7 @@ class DashboardLayoutService:
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             file_path = os.path.join(
-                current_dir, "..", "..", "public-mock-data", "styles.css"
+                current_dir, "..", "..", "public-mock-data", "styles-wire.css"
             )
             with open(file_path, "r") as f:
                 self.css_descriptor = f.read()

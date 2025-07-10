@@ -45,6 +45,8 @@ generate_layout_system_prompt = """
 
                     **Instructions:**
                     - For each layout (layout-1, layout-2, layout-3), generate a complete HTML structure that implements the corresponding information hierarchy.
+                    - For each layout use the "container" class on the main parent element which contains all the other components.
+                    - Pay attention to use padding or gap with 8px between every individual components.
                     - Use semantic HTML elements (section, header, main, aside, etc.) to organize the layout.
                     - Apply CSS Grid and Flexbox (using design system classes) to achieve responsive, center-aligned, and visually distinct arrangements.
                     - Assign appropriate design system classes to all components (cards, KPI boxes, tables, charts, buttons, etc.) for consistent styling.
@@ -168,6 +170,8 @@ generate_final_system_prompt = """
                     - **MANDATORY**: Preserve the SAME visual hierarchy and flow
                     - **MANDATORY**: Do NOT add, remove, or rearrange components from the selected layout
                     - **MANDATORY**: Only enhance styling and add interactivity, never change structure
+                    - **MANDATORY**: For each layout use the "container" class on the main parent element which contains all the other components.
+                    - **MANDATORY**: Pay attention to use padding or gap with 8px between every individual components.
 
                     ## FINALIZATION METHODOLOGY:
 
@@ -207,16 +211,13 @@ generate_final_system_prompt = """
                     - **Performance**: Leverage canvas rendering for smooth performance with large datasets
 
                     **CRITICAL: Chart Sizing and Container Requirements:**
-                    - **MANDATORY**: Set fixed dimensions on chart containers to prevent infinite expansion
-                    - **MANDATORY**: Use CSS to set explicit width and height on chart containers
+                    - **MANDATORY**: Use "chart-container" class on the parent element.
                     - **MANDATORY**: Set `maintainAspectRatio: false` in Chart.js options
                     - **MANDATORY**: Use `responsive: true` for mobile compatibility
-                    - **RECOMMENDED**: Standard chart sizes: 400px width, 250px height for most charts
-                    - **RECOMMENDED**: Larger charts: 600px width, 350px height for main visualizations
 
                     **Example Chart Implementation with Fixed Sizing:**
                     ```html
-                    <div class="chart-container" style="position: relative; width: 400px; height: 250px;">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 250px;">
                         <canvas id="myChart"></canvas>
                     </div>
                     ```

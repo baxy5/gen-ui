@@ -54,15 +54,32 @@ class R2ObjectStorage:
         """
 
         # Load the styles.css from public-mock-data folder
-        try:
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            styles_path = os.path.join(
-                current_dir, "..", "public-mock-data", "styles.css"
-            )
-            with open(styles_path, "r") as f:
-                base_css = f.read()
-        except FileNotFoundError:
-            raise RuntimeError("Failed to load styles.css from public-mock-data folder")
+        if is_final:
+            try:
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                styles_path = os.path.join(
+                    current_dir, "..", "public-mock-data", "styles.css"
+                )
+                with open(styles_path, "r") as f:
+                    base_css = f.read()
+            except FileNotFoundError:
+                raise RuntimeError(
+                    "Failed to load styles.css from public-mock-data folder"
+                )
+
+        # Load the styles-wire.css from public-mock-data folder
+        if not is_final:
+            try:
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                styles_path = os.path.join(
+                    current_dir, "..", "public-mock-data", "styles-wire.css"
+                )
+                with open(styles_path, "r") as f:
+                    base_css = f.read()
+            except FileNotFoundError:
+                raise RuntimeError(
+                    "Failed to load styles.css from public-mock-data folder"
+                )
 
         # Combine base CSS with component-specific CSS
         css_content = f"""
