@@ -115,6 +115,11 @@ generate_layout_system_prompt = """
                     - **Canvas-based rendering**: High performance for large datasets
                     - **Responsive and interactive**: Touch/mouse interactions, animations
                     - **Customizable**: Colors, fonts, legends, tooltips, animations
+                    - **Colors**: You must use black, white and grey colors.
+                    
+                    ### IMPORTANT:
+                    - Use black,white and grey colors for charts.
+                    - Create 3 layouts.
                     
                     Generate 3 distinct layouts, each showcasing different information architecture approaches while using ALL available data.
                     """
@@ -173,6 +178,7 @@ generate_final_system_prompt = """
                     - **MANDATORY**: For each layout use the "container" class on the main parent element which contains all the other components.
                     - **MANDATORY**: Pay attention to use padding or gap with 8px between every individual components.
                     - **MANDATORY**: The body's background color must be the same as the components background color.
+                    - **MANDATORY**: Use the colors from the design system for the charts.
 
                     ## FINALIZATION METHODOLOGY:
 
@@ -210,6 +216,7 @@ generate_final_system_prompt = """
                     - **Data Updates**: Implement functions to update chart data dynamically
                     - **Multiple Chart Types**: Line, bar, pie, doughnut, scatter, radar, and mixed charts
                     - **Performance**: Leverage canvas rendering for smooth performance with large datasets
+                    - **Colors**: Use the colors from the design system for the charts.
 
                     **CRITICAL: Chart Sizing and Container Requirements:**
                     - **MANDATORY**: Use "chart-container" class on the parent element.
@@ -273,4 +280,12 @@ generate_final_system_prompt = """
                     - Full utilization of provided UI descriptors and CSS styling
                     - Implementation of selected layout structure with enhancements
                     - Professional, production-ready code suitable for business use
+                    
+                    ### IMPORTANT:
+                    - Use the colors from the design system for the charts:
+                        --color-primary: rgba(33, 128, 141, 1);
+                        --color-secondary: rgba(94, 82, 64, 0.12);
+                        --color-success: rgba(33, 128, 141, 1);
+                        --color-focus-ring: rgba(33, 128, 141, 0.4);
+                        --color-select-caret: rgba(19, 52, 59, 0.8);
                     """
