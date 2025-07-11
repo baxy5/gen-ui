@@ -88,7 +88,35 @@ class R2ObjectStorage:
             {files["css"]}
          """
 
-        js_content = files["js"]
+        table_functionalities = """
+        const tableHeaders = Array.from(document.querySelectorAll('.data-table th'));
+        const tableRows = Array.from(document.querySelectorAll('.data-table tbody tr'));
+
+        function sortTable(columnIndex) {
+            const isAscending = tableHeaders[columnIndex].classList.toggle('asc');
+            tableRows.sort((rowA, rowB) => {
+                const cellA = rowA.children[columnIndex].innerText;
+                const cellB = rowB.children[columnIndex].innerText;
+                return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            });
+            const tbody = document.querySelector('.data-table tbody');
+            tbody.innerHTML = '';
+            tableRows.forEach(row => tbody.appendChild(row));
+        }
+
+        tableHeaders.forEach((header, index) => {
+            header.addEventListener('click', () => sortTable(index));
+        });
+        """
+
+        if not is_final:
+            js_content = files["js"]
+        else:
+            js_content = f""" 
+            {table_functionalities}
+            
+            {files["js"]}
+            """
 
         return {"html": html_content, "css": css_content, "javascript": js_content}
 

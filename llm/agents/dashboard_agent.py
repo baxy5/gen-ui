@@ -86,51 +86,12 @@ class DashboardAgent:
             messages = [
                 SystemMessage(generate_final_system_prompt),
                 HumanMessage(
-                    f"""Create the final comprehensive dashboard using DATA-DRIVEN INFORMATION ARCHITECTURE:
+                    f"""Create the final comprehensive dashboard, component(s) or chart(s):
 
                     **SELECTED LAYOUT:** {state['selected_layout']}
                     **LAYOUT STRUCTURE DESCRIPTION:** {layout_description}
                     **UI COMPONENT LIBRARY:** {state['ui_descriptor']}
                     **CSS DESIGN SYSTEM:** {state['design_system']}
-
-                    **CRITICAL IMPLEMENTATION REQUIREMENTS:**
-                    1. **PRESERVE EXACT STRUCTURE**: Use the selected layout's HTML structure EXACTLY as provided - do NOT modify the structure, component types, or data organization
-                    2. **FOLLOW LAYOUT DESCRIPTION**: Use the layout structure description as your guide to maintain the exact row/column organization
-                    3. **MAINTAIN SAME DATA**: Keep the SAME data points in the SAME locations as shown in the selected layout
-                    4. **USE DESIGN SYSTEM CLASSES**: Apply CSS classes from the CSS design system for ALL styling - buttons, cards, text, spacing, colors, layouts
-                    5. **UI COMPONENT LIBRARY**: Use components from the UI descriptor library for consistent styling patterns
-                    6. **ONLY ENHANCE**: Add better styling, interactivity, and Chart.js visualizations WITHOUT changing the layout structure
-                    7. **FIXED CHART DIMENSIONS**: All Chart.js charts MUST have fixed container dimensions (use width: 400px, height: 250px as default)
-                    8. **Chart Container Pattern**: Wrap all charts in divs with explicit width/height and position: relative
-                    9. **RESPONSIVE DESIGN**: Maintain responsive behavior while keeping chart containers sized properly
-                    10. **NO INLINE STYLES**: Use design system classes instead of inline styles wherever possible
-
-                    **LAYOUT STRUCTURE IMPLEMENTATION:**
-                    - **MANDATORY**: Follow the layout description exactly for row/column organization
-                    - **MANDATORY**: Maintain the same component types in the same positions
-                    - **MANDATORY**: Preserve the visual hierarchy described in the layout description
-                    - **MANDATORY**: Keep the same data groupings and relationships as described
-
-                    **CHART.JS SIZING REQUIREMENTS:**
-                    - MANDATORY: Wrap each chart in a container div with fixed dimensions
-                    - MANDATORY: Use style="position: relative; width: 400px; height: 250px;" on chart containers
-                    - MANDATORY: Set maintainAspectRatio: false in Chart.js options
-                    - MANDATORY: Set responsive: true for mobile compatibility
-
-                    **FINAL OUTPUT:**
-                    - Complete dashboard with title, HTML, CSS, and JavaScript
-                    - EXACT same structure and data as the selected layout following the layout description
-                    - Enhanced styling using CSS classes from the provided design system
-                    - UI components from the component library with consistent styling patterns
-                    - Interactive features and properly sized Chart.js visualizations
-                    - Professional presentation suitable for executive use
-                    - Ready for production deployment in iframe environment
-
-                    **CSS DESIGN SYSTEM USAGE:**
-                    - Use design system classes for buttons, cards, text styling, spacing, colors, and layouts
-                    - Apply UI component library patterns for consistent visual design
-                    - Leverage CSS variables and utility classes from the design system
-                    - Maintain design system consistency across all components
 
                     **REMEMBER**: Your job is to take the selected layout and enhance it with better styling and interactivity using the design system classes, NOT to redesign or restructure it. The layout structure must remain identical while applying proper CSS classes. Use the layout description as your structural guide. Use the CSS DESIGN SYSTEM as your styling guide."""
                 ),
