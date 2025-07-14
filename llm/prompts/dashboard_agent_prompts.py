@@ -191,12 +191,17 @@ generate_final_system_prompt = """
                     - Only enhance styling and add interactivity, never change structure
                     - For each layout use the "container" class on the main parent element which contains all the other components.
                     - Pay attention to use padding or gap with 8px between every individual components.
-                    - Use the colors from the design system for the charts:
-                        --color-primary: rgba(33, 128, 141, 1);
-                        --color-secondary: rgba(94, 82, 64, 0.12);
-                        --color-success: rgba(33, 128, 141, 1);
-                        --color-focus-ring: rgba(33, 128, 141, 0.4);
-                        --color-select-caret: rgba(19, 52, 59, 0.8);
+                    - Use the colors from the design system for the charts (dark mode only):
+                        --color-primary: #47e9ab;
+                        --color-primary-hover: #71f1c0;
+                        --color-primary-active: #a3ffdd;
+                        --color-success: #47e9ab;
+                        --color-warning: #ffae00;
+                        --color-error: #ff6915;
+                        --color-info: #b8c4cc;
+                        --color-text: #ffffff;
+                        --color-text-secondary: rgba(184, 196, 204, 0.7);
+                        --color-border: rgba(86, 112, 128, 0.3);
                     - Use proper HTML5 structure with accessibility
                     - Build upon provided styles with additional enhancements
                     - Create interactive features and data manipulation
@@ -266,25 +271,77 @@ generate_final_system_prompt = """
                     - **Canvas Elements**: Use `<canvas>` tags with unique IDs for each chart
                     - **Chart Configuration**: Configure charts with data, options, and styling
                     - **Responsive Charts**: Set `responsive: true` and `maintainAspectRatio: false`
-                    - **Color Schemes**: Use consistent color palettes across charts
+                    - **Color Schemes**: Use consistent color palettes from the design system - NO BLACK COLORS
                     - **Interactive Features**: Enable tooltips, legends, and hover effects
                     - **Data Updates**: Implement functions to update chart data dynamically
                     - **Multiple Chart Types**: Line, bar, pie, doughnut, scatter, radar, and mixed charts
                     - **Performance**: Leverage canvas rendering for smooth performance with large datasets
-                    - **Colors**: Use the colors from the design system for the charts.
+                    
+                    **CHART COLOR IMPLEMENTATION:**
+                    Create color variables from CSS custom properties and use them in charts:
+                    ```javascript
+                    // Extract colors from CSS custom properties
+                    const getColorFromCSS = (colorVar) => {
+                        return getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim();
+                    };
+
+                    // Define color palette from design system
+                    const chartColors = {
+                        primary: getColorFromCSS('--color-primary'),        // #47e9ab
+                        primaryHover: getColorFromCSS('--color-primary-hover'), // #71f1c0
+                        primaryActive: getColorFromCSS('--color-primary-active'), // #a3ffdd
+                        success: getColorFromCSS('--color-success'),        // #47e9ab
+                        warning: getColorFromCSS('--color-warning'),        // #ffae00
+                        error: getColorFromCSS('--color-error'),           // #ff6915
+                        info: getColorFromCSS('--color-info'),             // #b8c4cc
+                        text: getColorFromCSS('--color-text'),             // #ffffff
+                        textSecondary: getColorFromCSS('--color-text-secondary'), // rgba(184, 196, 204, 0.7)
+                        border: getColorFromCSS('--color-border')          // rgba(86, 112, 128, 0.3)
+                    };
+
+                    // Alternative: Use hex colors directly if CSS extraction fails
+                    const fallbackColors = {
+                        primary: '#47e9ab',
+                        primaryHover: '#71f1c0',
+                        primaryActive: '#a3ffdd',
+                        success: '#47e9ab',
+                        warning: '#ffae00',
+                        error: '#ff6915',
+                        info: '#b8c4cc',
+                        text: '#ffffff',
+                        textSecondary: 'rgba(184, 196, 204, 0.7)',
+                        border: 'rgba(86, 112, 128, 0.3)'
+                    };
+                    ```
 
                     **CRITICAL: Chart Sizing and Container Requirements:**
                     - **MANDATORY**: Use "chart-container" class on the parent element.
                     - **MANDATORY**: Set `maintainAspectRatio: false` in Chart.js options
                     - **MANDATORY**: Use `responsive: true` for mobile compatibility
 
-                    **Example Chart Implementation with Fixed Sizing:**
+                    **Example Chart Implementation with Design System Colors:**
                     ```html
                     <div class="chart-container" style="position: relative; width: 100%; height: 250px;">
                         <canvas id="myChart"></canvas>
                     </div>
                     ```
                     ```javascript
+                    // Extract colors from CSS custom properties
+                    const getColorFromCSS = (colorVar) => {
+                        return getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim();
+                    };
+
+                    // Define color palette from design system
+                    const chartColors = {
+                        primary: getColorFromCSS('--color-primary') || '#47e9ab',
+                        success: getColorFromCSS('--color-success') || '#47e9ab',
+                        warning: getColorFromCSS('--color-warning') || '#ffae00',
+                        error: getColorFromCSS('--color-error') || '#ff6915',
+                        info: getColorFromCSS('--color-info') || '#b8c4cc',
+                        text: getColorFromCSS('--color-text') || '#ffffff',
+                        textSecondary: getColorFromCSS('--color-text-secondary') || 'rgba(184, 196, 204, 0.7)'
+                    };
+
                     const ctx = document.getElementById('myChart').getContext('2d');
                     const myChart = new Chart(ctx, {
                         type: 'line',
@@ -293,7 +350,10 @@ generate_final_system_prompt = """
                             datasets: [{
                                 label: 'Sales',
                                 data: [12, 19, 3, 5, 2, 3],
-                                borderWidth: 1
+                                borderColor: chartColors.primary,
+                                backgroundColor: chartColors.primary + '20', // Add 20% opacity
+                                borderWidth: 2,
+                                tension: 0.1
                             }]
                         },
                         options: {
@@ -302,12 +362,59 @@ generate_final_system_prompt = """
                             plugins: {
                                 legend: {
                                     display: true,
-                                    position: 'top'
+                                    position: 'top',
+                                    labels: {
+                                        color: chartColors.text,
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        color: chartColors.textSecondary
+                                    },
+                                    grid: {
+                                        color: chartColors.textSecondary + '30'
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        color: chartColors.textSecondary
+                                    },
+                                    grid: {
+                                        color: chartColors.textSecondary + '30'
+                                    }
                                 }
                             }
                         }
                     });
                     ```
+                    
+                    **CHART COLOR PALETTE USAGE:**
+                    For different chart types, use these color combinations:
+                    - **Single Dataset Charts**: Use `chartColors.primary` for main data
+                    - **Multi-Dataset Charts**: Use `[chartColors.primary, chartColors.success, chartColors.warning, chartColors.error, chartColors.info]`
+                    - **Status/Category Charts**: Map to semantic colors (success=green, warning=yellow, error=red, info=blue)
+                    - **Pie/Doughnut Charts**: Use varied colors from the palette for different segments
+                    - **Background Colors**: Add transparency by appending opacity values ('20', '30', '40')
+                    - **Grid/Axis Colors**: Use `chartColors.textSecondary` with low opacity
+                    - **Text Colors**: Use `chartColors.text` for titles, `chartColors.textSecondary` for labels
+                    - **AVOID**: Black (#000000), pure white (#ffffff) as data colors
+                    
+                    **Example Multi-Dataset Chart Colors:**
+                    ```javascript
+                    const datasetColors = [
+                        chartColors.primary,    // #47e9ab
+                        chartColors.warning,    // #ffae00  
+                        chartColors.error,      // #ff6915
+                        chartColors.info,       // #b8c4cc
+                        chartColors.success     // #47e9ab (same as primary)
+                    ];
+                    ```
+                    
                     ### OUTPUT REQUIREMENTS:
                     - Single comprehensive dashboard with complete page title, HTML, CSS, and JavaScript
                     - Full utilization of provided UI descriptors and CSS styling
