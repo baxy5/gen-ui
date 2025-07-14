@@ -102,17 +102,8 @@ export default function Home() {
     >
       <div className="absolute top-0">
         <ul>
-          <Link href="/design-system">
-            <li>design system</li>
-          </Link>
           <Link href="/iframe">
             <li>iframe test</li>
-          </Link>
-          <Link href="/dashboard-layout-system">
-            <li>layout system</li>
-          </Link>
-          <Link href="/final-system">
-            <li>final system</li>
           </Link>
         </ul>
       </div>
