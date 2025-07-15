@@ -5,6 +5,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from core.common import get_gpt_client
 from schemas.dashboard_schema import AgentState, Layout, LayoutNode
 from prompts.dashboard_agent_prompts import (
+    select_relevant_data_prompt,
     generate_layout_system_prompt,
     generate_final_layout_description_prompt,
     generate_final_system_prompt,
@@ -22,6 +23,25 @@ class DashboardAgent:
     def _build_graph(self):
         graph = StateGraph(AgentState)
 
+        async def select_relevant_data(state: AgentState):
+            """Analyze and select relevant data for the user request."""
+            messages = [
+                SystemMessage(select_relevant_data_prompt),
+                HumanMessage(
+                    f"""
+                Analyze the user query and the provided dataset. Then present EVERY piece of relevant data and a summary of the user query.
+                
+                **USER QUERY:** {state["query"]}
+                **DATASET:** {state["data"]}
+                """
+                ),
+            ]
+
+            response = await self.client.ainvoke(messages)
+
+            state["relevant_data"] = response
+            return state
+
         async def generate_layouts(state: AgentState):
             """Generate three layouts using data-driven information architecture approach."""
             structured_model = self.client.with_structured_output(LayoutNode)
@@ -31,8 +51,7 @@ class DashboardAgent:
                     f"""
                     Create three comprehensive dashboard layouts from the provided informations.
 
-                    **USER REQUEST:** {state['query']}
-                    **DATASET:** {state['data']}
+                    **DATA:** {state['relevant_data']}
                     **DESIGN SYSTEM:** {state['design_system']}
 
                     **OUTPUT REQUIREMENTS:**
@@ -114,6 +133,7 @@ class DashboardAgent:
                 return "final"
 
         graph.add_node("route_phase", route_phase_node)
+        graph.add_node("select_relevant_data", select_relevant_data)
         graph.add_node("generate_layouts", generate_layouts)
         graph.add_node("finalize_dashboard", finalize_dashboard)
 
@@ -122,11 +142,12 @@ class DashboardAgent:
             "route_phase",
             route_phase_condition,
             {
-                "layout": "generate_layouts",
+                "layout": "select_relevant_data",
                 "final": "finalize_dashboard",
             },
         )
 
+        graph.add_edge("select_relevant_data", "generate_layouts")
         graph.add_edge("generate_layouts", END)
         graph.add_edge("finalize_dashboard", END)
 

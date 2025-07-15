@@ -72,6 +72,9 @@ class AgentState(TypedDict):
 
     query: str = Field(description="User query.")
     data: str = Field(description="Provided dataset by the user.")
+    relevant_data: str = Field(
+        description="Chosen relevant data for user query from all the data."
+    )
     ui_descriptor: str = Field(description="Descriptors of the UI/DS elements.")
     design_system: str = Field(
         description="CSS classes and descriptors of a design system."
