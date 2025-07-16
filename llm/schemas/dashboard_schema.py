@@ -6,7 +6,7 @@ class LayoutRequestSchema(BaseModel):
     """Schema for API "layout" phase request."""
 
     query: str = Field(
-        default="Create a dashboard from all the provided data.",
+        default="Create an informative dashboard from every piece of information in the dataset.",
         description="User query.",
     )
     data: str = Field(description="Provided dataset by the user.")
@@ -72,6 +72,7 @@ class AgentState(TypedDict):
 
     query: str = Field(description="User query.")
     data: str = Field(description="Provided dataset by the user.")
+    summarized_query: str = Field(description="Summarized user query by LLM.")
     relevant_data: str = Field(
         description="Chosen relevant data for user query from all the data."
     )

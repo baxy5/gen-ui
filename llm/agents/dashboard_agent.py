@@ -5,6 +5,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from core.common import get_gpt_client
 from schemas.dashboard_schema import AgentState, Layout, LayoutNode
 from prompts.dashboard_agent_prompts import (
+    summarize_user_query_prompt,
     select_relevant_data_prompt,
     generate_layout_system_prompt,
     generate_final_layout_description_prompt,
@@ -23,15 +24,28 @@ class DashboardAgent:
     def _build_graph(self):
         graph = StateGraph(AgentState)
 
+        async def summarize_user_query(state: AgentState):
+            """Analyze and summarize user query."""
+            messages = [
+                SystemMessage(summarize_user_query_prompt),
+                HumanMessage(
+                    f"""Your task is to analyze and then summarize this user query: {state["query"]}"""
+                ),
+            ]
+
+            response = await self.client.ainvoke(messages)
+            state["summarized_query"] = response
+            return state
+
         async def select_relevant_data(state: AgentState):
             """Analyze and select relevant data for the user request."""
             messages = [
                 SystemMessage(select_relevant_data_prompt),
                 HumanMessage(
                     f"""
-                Analyze the user query and the provided dataset. Then present EVERY piece of relevant data and a summary of the user query.
+                Analyze the provided dataset, then present EVERY piece of relevant data for answering the user query.
                 
-                **USER QUERY:** {state["query"]}
+                **USER QUERY:** {state["summarized_query"]}
                 **DATASET:** {state["data"]}
                 """
                 ),
@@ -133,6 +147,7 @@ class DashboardAgent:
                 return "final"
 
         graph.add_node("route_phase", route_phase_node)
+        graph.add_node("summarize_user_query", summarize_user_query)
         graph.add_node("select_relevant_data", select_relevant_data)
         graph.add_node("generate_layouts", generate_layouts)
         graph.add_node("finalize_dashboard", finalize_dashboard)
@@ -142,11 +157,12 @@ class DashboardAgent:
             "route_phase",
             route_phase_condition,
             {
-                "layout": "select_relevant_data",
+                "layout": "summarize_user_query",
                 "final": "finalize_dashboard",
             },
         )
 
+        graph.add_edge("summarize_user_query", "select_relevant_data")
         graph.add_edge("select_relevant_data", "generate_layouts")
         graph.add_edge("generate_layouts", END)
         graph.add_edge("finalize_dashboard", END)
