@@ -32,14 +32,12 @@ class DashboardFinalService:
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             file_path = os.path.join(
-                current_dir, "..", "..", "public-mock-data", "technova_dummy_data.json"
+                current_dir, "..", "..", "mock-data", "response_1748851964185.json"
             )
             with open(file_path, "r") as f:
                 self.data = json.dumps(json.load(f))
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            raise RuntimeError(
-                f"Final service -> Failed to load or parse technova_dummy_data.json: {e}"
-            )
+            raise RuntimeError(f"Final service -> Failed to load or parse data: {e}")
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             file_path = os.path.join(
