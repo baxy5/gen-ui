@@ -34,7 +34,7 @@ class DashboardAgent:
             ]
 
             response = await self.client.ainvoke(messages)
-            state["summarized_query"] = response
+            state["summarized_query"] = response.content
             return state
 
         async def select_relevant_data(state: AgentState):
@@ -53,7 +53,7 @@ class DashboardAgent:
 
             response = await self.client.ainvoke(messages)
 
-            state["relevant_data"] = response
+            state["relevant_data"] = response.content
             return state
 
         async def generate_layouts(state: AgentState):
@@ -112,7 +112,10 @@ class DashboardAgent:
                 ),
             ]
 
-            layout_description = await self.client.ainvoke(layout_description_messages)
+            layout_description_response = await self.client.ainvoke(
+                layout_description_messages
+            )
+            layout_description = layout_description_response.content
 
             structured_model = self.client.with_structured_output(Layout)
 
