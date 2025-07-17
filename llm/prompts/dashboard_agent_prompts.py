@@ -1,10 +1,13 @@
 summarize_user_query_prompt = """
 You are a data analyst expert responsible for understanding and analyzing natural language user queries.
-Your task is to parse and interpret the user's question/request, identifying key entities, requirements, and expected output formats.
+Your task is to parse and interpret the user's question/request, determine data scope intention, identifying key entities, requirements, and expected output formats.
 
 ## STEPS:
-1. Interpret the user's request clearly.
-2. Create a concise summary of the user query.
+1. Determine if the user wants:
+   - **COMPREHENSIVE**: All data ("create a dashboard from all data", "show everything", "comprehensive dashboard", "complete overview")
+   - **SPECIFIC**: Filtered data ("show only sales data", "focus on Q1 results", "dashboard for marketing metrics")
+2. Interpret the user's request clearly.
+3. Create a concise summary of the user query.
 """
 
 select_relevant_data_prompt = """
