@@ -3,18 +3,15 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import SystemMessage, HumanMessage
 from core.common import get_gpt_client
-from schemas.dashboard_schema import AgentState, Layout, LayoutNode
+from schemas.dashboard_schema import AgentState, Layout
 from prompts.dashboard_agent_prompts import (
-    summarize_user_query_prompt,
-    select_relevant_data_prompt,
-    generate_layout_system_prompt,
-    generate_final_layout_description_prompt,
-    generate_final_system_prompt,
+    generate_js_prompt,
+    generate_dashboard_prompt,
 )
 
 
 class DashboardAgent:
-    """Agent for generating dashboard layouts using data-driven information architecture."""
+    """Agent for generating dashboard."""
 
     def __init__(self, client: ChatOpenAI) -> None:
         self.client = client
@@ -24,151 +21,177 @@ class DashboardAgent:
     def _build_graph(self):
         graph = StateGraph(AgentState)
 
-        async def summarize_user_query(state: AgentState):
-            """Analyze and summarize user query."""
-            messages = [
-                SystemMessage(summarize_user_query_prompt),
-                HumanMessage(
-                    f"""Your task is to analyze and then summarize this user query: {state["query"]}"""
-                ),
-            ]
-
-            response = await self.client.ainvoke(messages)
-            state["summarized_query"] = response.content
-            return state
-
-        async def select_relevant_data(state: AgentState):
-            """Analyze and select relevant data for the user request."""
-            messages = [
-                SystemMessage(select_relevant_data_prompt),
-                HumanMessage(
-                    f"""
-                Analyze the provided dataset, then present EVERY piece of relevant data for answering the user query.
-                
-                **USER QUERY:** {state["summarized_query"]}
-                **DATASET:** {state["data"]}
+        async def generate_js(state: AgentState):
+            try:
+                messages = [
+                    SystemMessage(generate_js_prompt),
+                    HumanMessage(
+                        f"""
+                    User Query: 
+                    {state["query"]}
+                    
+                    Dataset: 
+                    {state["data"]}
                 """
-                ),
-            ]
+                    ),
+                ]
 
-            response = await self.client.ainvoke(messages)
+                response = await self.client.ainvoke(messages)
+                state["js"] = response.content
+                return state
+            except Exception as e:
+                raise Exception(f"Error in generate_js: {e}")
 
-            state["relevant_data"] = response.content
-            return state
+        async def generate_html(state: AgentState):
+            try:
+                messages = [
+                    SystemMessage(
+                        """
+                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+                    Your task:  
+                    Generate a **semantic, responsive HTML structure** that is designed to be dynamically populated using a **JavaScript dataset** (provided in the input).
 
-        async def generate_layouts(state: AgentState):
-            """Generate three layouts using data-driven information architecture approach."""
-            structured_model = self.client.with_structured_output(LayoutNode)
-            messages = [
-                SystemMessage(generate_layout_system_prompt),
-                HumanMessage(
-                    f"""
-                    Create three comprehensive dashboard layouts from the provided informations.
+                    Instructions:
+                    - Do not hardcode any data values.
+                    - Add placeholder elements or `id`/`data-*` attributes where JavaScript can inject the data later.
+                    - Use semantic tags like `<main>`, `<section>`, `<article>`, `<table>`, `<thead>`, `<tbody>`, etc.
+                    - Structure the layout based on the data format: if it's tabular, use `<table>`; if hierarchical, consider lists or expandable sections.
+                    - Add proper classes and clear markup structure so styling and scripting can hook in cleanly.
+                    - Ensure accessibility and mobile responsiveness using semantic tags and good nesting.
 
-                    **DATA:** {state['relevant_data']}
-                    **DESIGN SYSTEM:** {state['design_system']}
+                    Return only the HTML (do not include CSS or JS).
+                    """
+                    ),
+                    HumanMessage(
+                        f"""
+                    Javascript code:
+                    {state["js"]}
+                    """
+                    ),
+                ]
 
-                    **OUTPUT REQUIREMENTS:**
-                    - 3 distinct layout approaches (layout-1, layout-2, layout-3) with different component hierarchies
-                    - Comprehensive use of ALL provided data in each layout (same data, different structure)
-                    - Clear component hierarchy differentiation in each layout
-                    - Proper CSS Grid/Flexbox organization using design system classes
-                    - Responsive design with centered alignment
-                    - Professional styling using design system classes (cards, buttons, text, spacing, colors)
+                response = await self.client.ainvoke(messages)
+                state["html"] = response.content
+                return state
+            except Exception as e:
+                raise Exception(f"Error in generate_html: {e}")
 
-                    **IMPORTANT:**
-                    - Create 3 layout.
+        async def generate_css(state: AgentState):
+            try:
+                messages = [
+                    SystemMessage(
+                        f"""
+                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+                    Your task:
+                    Generate a CSS code for a modern, responsive web application.
+                    
+                    Instructions:
+                    - Use the predefined classes from the design system.
+                    - Do not generate other color variables.
+                    - If a necessary CSS class in not in the design system, generate it.
+                    """
+                    ),
+                    HumanMessage(
+                        f"""
+                    Design System:
+                    {state["design_system"]}
+                    """
+                    ),
+                ]
 
-                    Focus on creating layouts that help users understand and analyze the complete dataset, not just highlights. Use design system classes for all styling to ensure consistency."""
-                ),
-            ]
+                response = await self.client.ainvoke(messages)
+                state["css"] = response.content
+                return state
+            except Exception as e:
+                raise Exception(f"Error in generate_css: {e}")
 
-            response = await structured_model.ainvoke(messages)
+        async def complete_html_with_css(state: AgentState):
+            try:
+                messages = [
+                    SystemMessage(
+                        f"""
+                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+                    Your task:
+                    Refactor the HTML code to use the CSS classes from the provided CSS code.
+                    
+                    Instructions:
+                    - Do not change the layout structure of the HTML elements.
+                    - Only implement the CSS classes on the HTML elements.
+                    """
+                    ),
+                    HumanMessage(
+                        f"""
+                    HTML code:
+                    {state['html']}
+                    
+                    CSS code:
+                    {state["css"]}
+                    """
+                    ),
+                ]
 
-            state["layouts"] = response.layouts
-            return state
+                response = await self.client.ainvoke(messages)
+                state["html"] = response.content
+                return state
+            except Exception as e:
+                raise Exception(f"Error in complete_html_with_css: {e}")
 
-        async def finalize_dashboard(
-            state: AgentState,
-        ) -> AgentState:
-            """Finalize dashboard using data-driven architecture principles."""
+        async def complete_js(state: AgentState):
+            try:
+                messages = [
+                    SystemMessage(
+                        f"""
+                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+                    Your task:
+                    Complete the provided Javascript code which means, extend with utility functions, fill the HTML with the provided data,
+                    generate input search functions, filtering functions, modal functionalities.
+                    
+                    Instructions:
+                    - Do not remove the provided Javascript code just extend it.
+                    - Add only necessary functions.
+                    """
+                    ),
+                    HumanMessage(
+                        f"""
+                    Javascript code:
+                    {state["js"]}
+                    """
+                    ),
+                ]
 
-            # Detailed layout description
-            layout_description_messages = [
-                SystemMessage(generate_final_layout_description_prompt),
-                HumanMessage(
-                    f"""Analyze the selected layout and create a detailed structural description:
+                response = await self.client.ainvoke(messages)
+                state["js"] = response.content
+                return state
+            except Exception as e:
+                raise Exception(f"Error in complete_js: {e}")
 
-                    **SELECTED LAYOUT:** {state['selected_layout']}
-
-                    **ANALYSIS REQUIREMENTS:**
-                    1. Break down the layout into rows and columns
-                    2. Identify component types and their positions
-                    3. Describe the visual hierarchy and flow
-                    4. Note any spanning or merged sections
-                    5. Capture the responsive organization
-
-                    **OUTPUT:** A clear, implementable structural description that captures the exact layout organization."""
-                ),
-            ]
-
-            layout_description_response = await self.client.ainvoke(
-                layout_description_messages
-            )
-            layout_description = layout_description_response.content
-
+        """ async def generate_dashboard(state: AgentState):
             structured_model = self.client.with_structured_output(Layout)
-
             messages = [
-                SystemMessage(generate_final_system_prompt),
-                HumanMessage(
-                    f"""Create the final comprehensive dashboard, component(s) or chart(s):
-
-                    **SELECTED LAYOUT:** {state['selected_layout']}
-                    **LAYOUT STRUCTURE DESCRIPTION:** {layout_description}
-                    **UI COMPONENT LIBRARY:** {state['ui_descriptor']}
-                    **CSS DESIGN SYSTEM:** {state['design_system']}
-
-                    **REMEMBER**: Your job is to take the selected layout and enhance it with better styling and interactivity using the design system classes, NOT to redesign or restructure it. The layout structure must remain identical while applying proper CSS classes. Use the layout description as your structural guide. Use the CSS DESIGN SYSTEM as your styling guide."""
-                ),
+                SystemMessage(generate_dashboard_prompt),
+                HumanMessage(),
             ]
 
             response = await structured_model.ainvoke(messages)
+            state["dashboard"] = response
+            return state """
 
-            state["final"] = response
-            return state
+        graph.add_node("generate_js", generate_js)
+        graph.add_node("generate_html", generate_html)
+        graph.add_node("generate_css", generate_css)
+        graph.add_node("complete_html_with_css", complete_html_with_css)
+        graph.add_node("complete_js", complete_js)
 
-        def route_phase_node(state: AgentState) -> AgentState:
-            # This node just passes through the state
-            return state
-
-        def route_phase_condition(state: AgentState) -> str:
-            # This function determines which path to take
-            if state["phase"] == "layout":
-                return "layout"
-            else:
-                return "final"
-
-        graph.add_node("route_phase", route_phase_node)
-        graph.add_node("summarize_user_query", summarize_user_query)
-        graph.add_node("select_relevant_data", select_relevant_data)
-        graph.add_node("generate_layouts", generate_layouts)
-        graph.add_node("finalize_dashboard", finalize_dashboard)
-
-        graph.set_entry_point("route_phase")
-        graph.add_conditional_edges(
-            "route_phase",
-            route_phase_condition,
-            {
-                "layout": "summarize_user_query",
-                "final": "finalize_dashboard",
-            },
-        )
-
-        graph.add_edge("summarize_user_query", "select_relevant_data")
-        graph.add_edge("select_relevant_data", "generate_layouts")
-        graph.add_edge("generate_layouts", END)
-        graph.add_edge("finalize_dashboard", END)
+        graph.set_entry_point("generate_js")
+        graph.add_edge("generate_js", "generate_html")
+        graph.add_edge("generate_html", "generate_css")
+        graph.add_edge("generate_css", "complete_html_with_css")
+        graph.add_edge("complete_html_with_css", "complete_js")
+        graph.add_edge("complete_js", END)
 
         return graph.compile(checkpointer=self.checkpoint_saver)
 
