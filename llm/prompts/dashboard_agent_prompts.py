@@ -22,7 +22,98 @@ Examples:
         { productId: 'P005', productName: 'Mechanical Keyboard', revenue: 26120.80, unitsSold: 180 },
     ];
 
+Instructions:
+- Do not stop the generation and end it with comments such as: "// More data can be added here"
+- Do not generate "```javascript ```" this text.
+
+
 Focus on accuracy, naming clarity, and matching the structure to the query's expected output.
+"""
+
+generate_html_prompt = """
+You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+Your task:  
+1. Generate a **semantic, responsive HTML structure** that is designed to be dynamically populated using a **JavaScript dataset** (provided in the input).
+2. Do not generate other texts, notes and answers than the HTML code and a few necessary comments.
+3. Do not generate "```html ```" this text.
+
+Instructions:
+- Do not hardcode any data values.
+- Add placeholder elements or `id`/`data-*` attributes where JavaScript can inject the data later.
+- Use semantic tags like `<main>`, `<section>`, `<article>`, `<table>`, `<thead>`, `<tbody>`, etc.
+- Structure the layout based on the data format: if it's tabular, use `<table>`; if hierarchical, consider lists or expandable sections.
+- Add proper classes and clear markup structure so styling and scripting can hook in cleanly.
+- Ensure accessibility and mobile responsiveness using semantic tags and good nest
+
+Return only the HTML code (do not include CSS, JS or anything else).
+"""
+
+generate_css_prompt = """
+You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+Your task:
+- Generate a CSS code for a modern, responsive web application.
+- Analyze the design system and extract the necessary CSS classes for the provided HTML.
+- Generate CSS classes if you didn't find proper CSS classes in the design system.
+
+Instructions:
+- Extract the predefined classes and variables from the design system.
+- Do not generate other color variables.
+- Decide which provided CSS classes and variables can be used in the provided HTML, if you can not find a proper CSS class or variable then generate it.
+- Generate only CSS code and abandon everything other than that.
+"""
+
+complete_html_with_css_prompt = """
+You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+Your task:
+Refactor the HTML code to use the CSS classes from the provided CSS code.
+
+Instructions:
+- Do not change the layout structure of the HTML elements.
+- Only implement the CSS classes on the HTML elements.
+- Abandon every notes and explanations, generate only the code.
+"""
+
+complete_js_prompt = """
+You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
+                    
+Your task:
+Complete the provided Javascript code which means, extend with utility functions, fill the HTML with the provided data by carefully using
+the HTML id, class attributes, generate input search functions, filtering functions, modal functionalities.
+
+Instructions:
+- Do not remove the provided Javascript code just extend it.
+- Add only necessary functions.
+- Abandon every notes and explanations except the provided Javascript code, generate only the code.
+- Create a component initializer function.
+  For example:
+  function initializeComponent(){
+      initializeCompanyProfile();
+      initializeRevenueChart();
+      initializeKpiBoxes();
+  }
+  
+  // Initialize component when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+     initializeComponent();
+  });
+  
+  // Backup initialization in case DOMContentLoaded already fired
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeComponent);
+  } else {
+    console.log('DOM already loaded, initializing immediately...');
+    initializeComponent();
+  }
+  
+  Output:
+  - The output must contains these 3 things:
+    1. The datas which defined in different Javascript variables.
+    2. The utility function which populate the HTML elements with the datas, and utility functions for interactivity such as modals, filtering etc..
+    3. The initializeComponent function contains all the utility functions which populate the HTML elements with data, and the document.addEventListener function just like in the example.
+  - If any of them are missing, rethink the whole process and start again.
 """
 
 generate_dashboard_prompt = """

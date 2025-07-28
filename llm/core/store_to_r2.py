@@ -27,7 +27,23 @@ class R2ObjectStorage:
     def create_separate_files(self, files):
         """Build separate codes."""
 
-        html_content = files["html"]
+        html_content = f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>{files["page_title"]}</title>
+            <link rel="stylesheet" href="./styles.css">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        </head>
+        <body>
+            {files["html"]}
+            
+            <script src="./app.js"></script>
+        </body>
+        </html>
+        """
 
         css_content = files["css"]
 

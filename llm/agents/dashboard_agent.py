@@ -6,8 +6,15 @@ from core.common import get_gpt_client
 from schemas.dashboard_schema import AgentState, Layout
 from prompts.dashboard_agent_prompts import (
     generate_js_prompt,
+    generate_html_prompt,
+    generate_css_prompt,
+    complete_html_with_css_prompt,
+    complete_js_prompt,
     generate_dashboard_prompt,
 )
+from core.logger import get_logger
+
+logger = get_logger("dashboard_agent")
 
 
 class DashboardAgent:
@@ -23,6 +30,7 @@ class DashboardAgent:
 
         async def generate_js(state: AgentState):
             try:
+                logger.info("Generating Javascript code from data.")
                 messages = [
                     SystemMessage(generate_js_prompt),
                     HumanMessage(
@@ -40,29 +48,14 @@ class DashboardAgent:
                 state["js"] = response.content
                 return state
             except Exception as e:
+                logger.error(f"Error during Javascript generation from data: {e}")
                 raise Exception(f"Error in generate_js: {e}")
 
         async def generate_html(state: AgentState):
             try:
+                logger.info("Generating HTML structure.")
                 messages = [
-                    SystemMessage(
-                        """
-                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
-                    
-                    Your task:  
-                    Generate a **semantic, responsive HTML structure** that is designed to be dynamically populated using a **JavaScript dataset** (provided in the input).
-
-                    Instructions:
-                    - Do not hardcode any data values.
-                    - Add placeholder elements or `id`/`data-*` attributes where JavaScript can inject the data later.
-                    - Use semantic tags like `<main>`, `<section>`, `<article>`, `<table>`, `<thead>`, `<tbody>`, etc.
-                    - Structure the layout based on the data format: if it's tabular, use `<table>`; if hierarchical, consider lists or expandable sections.
-                    - Add proper classes and clear markup structure so styling and scripting can hook in cleanly.
-                    - Ensure accessibility and mobile responsiveness using semantic tags and good nesting.
-
-                    Return only the HTML (do not include CSS or JS).
-                    """
-                    ),
+                    SystemMessage(generate_html_prompt),
                     HumanMessage(
                         f"""
                     Javascript code:
@@ -75,28 +68,21 @@ class DashboardAgent:
                 state["html"] = response.content
                 return state
             except Exception as e:
+                logger.error(f"Error during HTML structure generation: {e}")
                 raise Exception(f"Error in generate_html: {e}")
 
         async def generate_css(state: AgentState):
             try:
+                logger.info("Generating CSS code.")
                 messages = [
-                    SystemMessage(
-                        f"""
-                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
-                    
-                    Your task:
-                    Generate a CSS code for a modern, responsive web application.
-                    
-                    Instructions:
-                    - Use the predefined classes from the design system.
-                    - Do not generate other color variables.
-                    - If a necessary CSS class in not in the design system, generate it.
-                    """
-                    ),
+                    SystemMessage(generate_css_prompt),
                     HumanMessage(
                         f"""
                     Design System:
                     {state["design_system"]}
+                    
+                    HTML:
+                    {state['html']}
                     """
                     ),
                 ]
@@ -105,23 +91,14 @@ class DashboardAgent:
                 state["css"] = response.content
                 return state
             except Exception as e:
+                logger.error(f"Error during CSS generation: {e}")
                 raise Exception(f"Error in generate_css: {e}")
 
         async def complete_html_with_css(state: AgentState):
             try:
+                logger.info("Generating combined HTML and CSS code.")
                 messages = [
-                    SystemMessage(
-                        f"""
-                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
-                    
-                    Your task:
-                    Refactor the HTML code to use the CSS classes from the provided CSS code.
-                    
-                    Instructions:
-                    - Do not change the layout structure of the HTML elements.
-                    - Only implement the CSS classes on the HTML elements.
-                    """
-                    ),
+                    SystemMessage(complete_html_with_css_prompt),
                     HumanMessage(
                         f"""
                     HTML code:
@@ -137,24 +114,14 @@ class DashboardAgent:
                 state["html"] = response.content
                 return state
             except Exception as e:
+                logger.error(f"Error during HTML and CSS combining: {e}")
                 raise Exception(f"Error in complete_html_with_css: {e}")
 
         async def complete_js(state: AgentState):
             try:
+                logger.info("Completing the Javascript code.")
                 messages = [
-                    SystemMessage(
-                        f"""
-                    You are a senior front-end developer, skilled in building responsive, interactive, and visually polished web applications.
-                    
-                    Your task:
-                    Complete the provided Javascript code which means, extend with utility functions, fill the HTML with the provided data,
-                    generate input search functions, filtering functions, modal functionalities.
-                    
-                    Instructions:
-                    - Do not remove the provided Javascript code just extend it.
-                    - Add only necessary functions.
-                    """
-                    ),
+                    SystemMessage(complete_js_prompt),
                     HumanMessage(
                         f"""
                     Javascript code:
@@ -167,6 +134,7 @@ class DashboardAgent:
                 state["js"] = response.content
                 return state
             except Exception as e:
+                logger.error(f"Error during Javascript code complatetation: {e}")
                 raise Exception(f"Error in complete_js: {e}")
 
         """ async def generate_dashboard(state: AgentState):
