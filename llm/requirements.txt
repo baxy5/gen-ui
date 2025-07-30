@@ -4,6 +4,9 @@ langchain_community
 
 langgraph
 
+langsmith
+openai
+
 fastapi[standard]
 pydantic
 uvicorn[standard]

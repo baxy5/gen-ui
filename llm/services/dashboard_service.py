@@ -3,7 +3,6 @@ from fastapi import Depends, HTTPException
 from agents.dashboard_agent import (
     AgentState,
     DashboardAgent,
-    get_dashboard_agent,
 )
 from langchain_core.runnables.config import RunnableConfig
 from core.store_to_r2 import R2ObjectStorage
@@ -23,8 +22,9 @@ class DashboardService:
                 )
             ),
         ],
+        agent: Annotated[DashboardAgent, Depends()],
     ) -> None:
-        self.agent = get_dashboard_agent()
+        self.agent = agent
         self.r2 = r2
         self.data = {
             "companyProfile": {
@@ -588,6 +588,108 @@ class DashboardService:
             },
         }
         self.design_system = """
+            :root {
+                --color-background: #292f33;
+                --color-surface: #292f33;
+                --color-text: #ffffff;
+                --color-text-secondary: rgba(184, 196, 204, 0.7);
+                --color-primary: #47e9ab;
+                --color-primary-hover: #71f1c0;
+                --color-primary-active: #a3ffdd;
+                --color-secondary: rgba(86, 112, 128, 0.15);
+                --color-secondary-hover: rgba(86, 112, 128, 0.25);
+                --color-secondary-active: rgba(86, 112, 128, 0.3);
+                --color-border: rgba(86, 112, 128, 0.3);
+                --color-btn-primary-text: #292f33;
+                --color-card-border: rgba(86, 112, 128, 0.2);
+                --color-card-border-inner: rgba(86, 112, 128, 0.15);
+                --color-error: #ff6915;
+                --color-success: #47e9ab;
+                --color-warning: #ffae00;
+                --color-info: #b8c4cc;
+                --color-focus-ring: rgba(71, 233, 171, 0.4);
+                --color-select-caret: rgba(255, 255, 255, 0.8);
+                --color-border-secondary: rgba(86, 112, 128, 0.2);
+
+                /* Common style patterns */
+                --focus-ring: 0 0 0 3px var(--color-focus-ring);
+                --focus-outline: 2px solid var(--color-primary);
+                --status-bg-opacity: 0.15;
+                --status-border-opacity: 0.25;
+                --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23292F33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+                --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+                /* RGB versions for opacity control */
+                --color-success-rgb: 71, 233, 171;
+                --color-error-rgb: 255, 105, 21;
+                --color-warning-rgb: 255, 174, 0;
+                --color-info-rgb: 184, 196, 204;
+
+                /* Typography */
+                --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
+                    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
+                    Monaco, Consolas, monospace;
+                --font-size-xs: 11px;
+                --font-size-sm: 12px;
+                --font-size-base: 14px;
+                --font-size-md: 14px;
+                --font-size-lg: 16px;
+                --font-size-xl: 18px;
+                --font-size-2xl: 20px;
+                --font-size-3xl: 24px;
+                --font-size-4xl: 30px;
+                --font-weight-normal: 400;
+                --font-weight-medium: 500;
+                --font-weight-semibold: 550;
+                --font-weight-bold: 600;
+                --line-height-tight: 1.2;
+                --line-height-normal: 1.5;
+                --letter-spacing-tight: -0.01em;
+
+                /* Spacing */
+                --space-0: 0;
+                --space-1: 1px;
+                --space-2: 2px;
+                --space-4: 4px;
+                --space-6: 6px;
+                --space-8: 8px;
+                --space-10: 10px;
+                --space-12: 12px;
+                --space-16: 16px;
+                --space-20: 20px;
+                --space-24: 24px;
+                --space-32: 32px;
+
+                /* Border Radius */
+                --radius-sm: 6px;
+                --radius-base: 8px;
+                --radius-md: 10px;
+                --radius-lg: 12px;
+                --radius-full: 9999px;
+
+                /* Shadows */
+                --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+                --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+                --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
+                    0 4px 6px -2px rgba(0, 0, 0, 0.02);
+                --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+
+                /* Animation */
+                --duration-fast: 150ms;
+                --duration-normal: 250ms;
+                --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+                /* Layout */
+                --container-sm: 640px;
+                --container-md: 768px;
+                --container-lg: 1024px;
+                --container-xl: 1280px;
+                }
+        
             /* Base styles */
             html {
             font-size: var(--font-size-base);

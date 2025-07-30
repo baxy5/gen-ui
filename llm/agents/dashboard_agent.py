@@ -13,22 +13,41 @@ from prompts.dashboard_agent_prompts import (
     generate_dashboard_prompt,
 )
 from core.logger import get_logger
+import os
+from dotenv import load_dotenv
+from langsmith import traceable
 
+load_dotenv()
 logger = get_logger("dashboard_agent")
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
+
+# Configure LangSmith
+if LANGSMITH_API_KEY:
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    os.environ["LANGCHAIN_PROJECT"] = "dashboard-agent"
+    os.environ["LANGCHAIN_API_KEY"] = LANGSMITH_API_KEY
+
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY is not set")
 
 
 class DashboardAgent:
     """Agent for generating dashboard."""
 
-    def __init__(self, client: ChatOpenAI) -> None:
-        self.client = client
+    def __init__(self) -> None:
         self.checkpoint_saver = InMemorySaver()
         self.graph = self._build_graph()
 
+    @traceable
     def _build_graph(self):
         graph = StateGraph(AgentState)
 
+        @traceable
         async def generate_js(state: AgentState):
+            client = ChatOpenAI(model="gpt-4.1", api_key=OPENAI_API_KEY)
+
             try:
                 logger.info("Generating Javascript code from data.")
                 messages = [
@@ -44,14 +63,17 @@ class DashboardAgent:
                     ),
                 ]
 
-                response = await self.client.ainvoke(messages)
+                response = await client.ainvoke(messages)
                 state["js"] = response.content
                 return state
             except Exception as e:
                 logger.error(f"Error during Javascript generation from data: {e}")
                 raise Exception(f"Error in generate_js: {e}")
 
+        @traceable
         async def generate_html(state: AgentState):
+            client = ChatOpenAI(model="gpt-4.1-mini", api_key=OPENAI_API_KEY)
+
             try:
                 logger.info("Generating HTML structure.")
                 messages = [
@@ -64,14 +86,18 @@ class DashboardAgent:
                     ),
                 ]
 
-                response = await self.client.ainvoke(messages)
+                response = await client.ainvoke(messages)
                 state["html"] = response.content
                 return state
             except Exception as e:
                 logger.error(f"Error during HTML structure generation: {e}")
                 raise Exception(f"Error in generate_html: {e}")
 
+        # gpt-4.1
+        @traceable
         async def generate_css(state: AgentState):
+            client = ChatOpenAI(model="gpt-4.1", api_key=OPENAI_API_KEY)
+
             try:
                 logger.info("Generating CSS code.")
                 messages = [
@@ -87,14 +113,17 @@ class DashboardAgent:
                     ),
                 ]
 
-                response = await self.client.ainvoke(messages)
+                response = await client.ainvoke(messages)
                 state["css"] = response.content
                 return state
             except Exception as e:
                 logger.error(f"Error during CSS generation: {e}")
                 raise Exception(f"Error in generate_css: {e}")
 
+        @traceable
         async def complete_html_with_css(state: AgentState):
+            client = ChatOpenAI(model="gpt-4.1-mini", api_key=OPENAI_API_KEY)
+
             try:
                 logger.info("Generating combined HTML and CSS code.")
                 messages = [
@@ -110,14 +139,17 @@ class DashboardAgent:
                     ),
                 ]
 
-                response = await self.client.ainvoke(messages)
+                response = await client.ainvoke(messages)
                 state["html"] = response.content
                 return state
             except Exception as e:
                 logger.error(f"Error during HTML and CSS combining: {e}")
                 raise Exception(f"Error in complete_html_with_css: {e}")
 
+        @traceable
         async def complete_js(state: AgentState):
+            client = ChatOpenAI(model="gpt-4.1-mini", api_key=OPENAI_API_KEY)
+
             try:
                 logger.info("Completing the Javascript code.")
                 messages = [
@@ -130,7 +162,7 @@ class DashboardAgent:
                     ),
                 ]
 
-                response = await self.client.ainvoke(messages)
+                response = await client.ainvoke(messages)
                 state["js"] = response.content
                 return state
             except Exception as e:
@@ -162,16 +194,3 @@ class DashboardAgent:
         graph.add_edge("complete_js", END)
 
         return graph.compile(checkpointer=self.checkpoint_saver)
-
-
-# Create a single shared instance
-_dashboard_agent_instance = None
-
-
-def get_dashboard_agent() -> DashboardAgent:
-    """Get or create the shared dashboard agent instance."""
-    global _dashboard_agent_instance
-    if _dashboard_agent_instance is None:
-        client = get_gpt_client()
-        _dashboard_agent_instance = DashboardAgent(client)
-    return _dashboard_agent_instance
