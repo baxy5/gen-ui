@@ -45,9 +45,23 @@ class R2ObjectStorage:
         </html>
         """
 
-        css_content = files["css"]
+        try:
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            styles_path = os.path.join(
+                current_dir, "..", "public-mock-data", "styles.css"
+            )
+            with open(styles_path, "r") as f:
+                design_system = f.read()
+        except FileNotFoundError:
+            raise RuntimeError("Failed to load styles.css file.")
 
-        js_content = files["js"]
+        css_content = design_system
+
+        js_content = f"""
+        {files["js"]}
+        
+        {files["js_utils"]}
+        """
 
         return {"html": html_content, "css": css_content, "javascript": js_content}
 

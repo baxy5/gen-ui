@@ -25,6 +25,7 @@ class AgentState(TypedDict):
     query: str
     data: str
     js: str
+    js_utils: str
     html: str
     css: str
     design_system: str
